@@ -2,7 +2,6 @@ package me.fzzyhmstrs.particle_core.mixins;
 
 import me.fallenbreath.conditionalmixin.api.annotation.Condition;
 import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
-import me.fzzyhmstrs.fzzy_config.util.TriState;
 import me.fzzyhmstrs.particle_core.interfaces.BlockPosStorer;
 import me.fzzyhmstrs.particle_core.plugin.PcConditionTester;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,13 +36,14 @@ public class ParticleCachePosMixin implements BlockPosStorer {
     @Nullable
     private volatile BlockState cachedState = null;
     @Unique
-    private volatile TriState isEmpty = TriState.DEFAULT;
+    @Nullable
+    private volatile Boolean isEmpty = null; // fleet: was Fzzy TriState; null = not computed yet
 
     @Override
     public void particle_core_tickCachedPos() {
         cachedPos = BlockPos.containing(this.x, this.y, this.z);
         cachedState = null;
-        isEmpty = TriState.DEFAULT;
+        isEmpty = null;
     }
 
     @Override
@@ -61,10 +61,12 @@ public class ParticleCachePosMixin implements BlockPosStorer {
 
     @Override
     public boolean particle_core_getCachedEmpty() {
-        if (isEmpty == TriState.DEFAULT) {
-            isEmpty = TriState.Companion.of(particle_core_getCachedState().getCollisionShape(this.level, cachedPos).isEmpty());
+        Boolean empty = isEmpty;
+        if (empty == null) {
+            empty = particle_core_getCachedState().getCollisionShape(this.level, cachedPos).isEmpty();
+            isEmpty = empty;
         }
-        return isEmpty.getAsBoolean();
+        return empty;
     }
 
 }

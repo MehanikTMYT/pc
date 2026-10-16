@@ -7,7 +7,5 @@ pluginManagement {
     plugins {
         val mdgVersion: String by settings
         id("net.neoforged.moddev").version(mdgVersion)
-        val kotlinVersion: String by System.getProperties()
-        kotlin("jvm").version(kotlinVersion)
     }
 }

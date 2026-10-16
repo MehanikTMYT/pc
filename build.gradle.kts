@@ -3,13 +3,10 @@ import com.matthewprenger.cursegradle.CurseProject
 import com.matthewprenger.cursegradle.CurseRelation
 import com.matthewprenger.cursegradle.Options
 import org.gradle.api.internal.artifacts.dependencies.DefaultImmutableVersionConstraint.strictly
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.net.URI
 
 plugins {
     id("net.neoforged.moddev")
-    val kotlinVersion: String by System.getProperties()
-    kotlin("jvm").version(kotlinVersion)
     id("com.modrinth.minotaur") version "2.+"
     id("com.matthewprenger.cursegradle") version "1.4.0"
 }
@@ -21,7 +18,7 @@ base {
 val log: File = file("changelog.md")
 val modVersion: String by project
 val minecraftVersion: String by project
-version = "$modVersion+$minecraftVersion+neoforge"
+version = "$modVersion-fleet.1+$minecraftVersion+neoforge"
 val mavenGroup: String by project
 group = mavenGroup
 println("## Changelog for ${base.archivesName.get()} $modVersion \n\n" + log.readText())
@@ -87,13 +84,7 @@ dependencies {
     val loaderVersion: String by project
     neoForge("net.neoforged:neoforge:$loaderVersion")*/
 
-    val kotlinForForgeVersion: String by project
-    runtimeOnly("thedarkcolour:kotlinforforge-neoforge:$kotlinForForgeVersion")
-
-    val fzzyConfigVersion: String by project
-    implementation("me.fzzyhmstrs:fzzy_config:$fzzyConfigVersion+$minecraftVersion+neoforge"){
-        exclude("net.fabricmc.fabric-api")
-    }
+    // fleet: Kotlin for Forge and Fzzy Config removed (config ported to Java + ModConfigSpec)
 
     val cmVersion: String by project
     implementation("com.github.Fallen-Breath.conditional-mixin:conditional-mixin-neoforge:$cmVersion")
@@ -104,8 +95,6 @@ dependencies {
         }
     }
 
-    runtimeOnly("net.peanuuutz.tomlkt:tomlkt:0.3.7")
-    runtimeOnly("blue.endless:jankson:1.2.3")
 }
 
 tasks {
@@ -115,13 +104,6 @@ tasks {
         sourceCompatibility = javaVersion.toString()
         targetCompatibility = javaVersion.toString()
         options.release.set(javaVersion.toString().toInt())
-    }
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_25)
-        }
-        //java.sourceCompatibility = javaVersion
-        //targetCompatibility = javaVersion.toString()
     }
 
     jar {
@@ -168,8 +150,6 @@ if (System.getenv("MODRINTH_TOKEN") != null) {
         detectLoaders.set(false)
         changelog.set(log.readText())
         dependencies {
-            required.project("kotlin-for-forge")
-            required.project("fzzy-config")
         }
         debugMode.set(uploadDebugMode.toBooleanStrictOrNull() ?: true)
     }
@@ -194,13 +174,9 @@ if (System.getenv("CURSEFORGE_TOKEN") != null) {
             mainArtifact(tasks.jar.get().archiveFile.get(), closureOf<CurseArtifact> {
                 displayName = "${base.archivesName.get()}-$modVersion+$minecraftVersion+neoforge"
                 relations(closureOf<CurseRelation> {
-                    this.requiredDependency("kotlin-for-forge")
-                    this.requiredDependency("fzzy-config")
                 })
             })
             relations(closureOf<CurseRelation> {
-                this.requiredDependency("kotlin-for-forge")
-                this.requiredDependency("fzzy-config")
             })
         })
         options(closureOf<Options> {
