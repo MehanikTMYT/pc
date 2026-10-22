@@ -57,15 +57,8 @@ repositories {
         url = URI("https://maven.neoforged.net/releases")
     }
     maven {
-        url = URI("https://thedarkcolour.github.io/KotlinForForge/")
-    }
-    maven {
         name = "Jitpack"
         url = uri("https://jitpack.io")
-    }
-    maven {
-        name = "FzzyMaven"
-        url = uri("https://maven.fzzyhmstrs.me/")
     }
     mavenLocal()
     mavenCentral()
